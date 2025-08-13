@@ -9,6 +9,7 @@ import dev.slne.surf.surfapi.bukkit.api.extensions.server
 import dev.slne.surf.surfapi.core.api.util.mutableObjectListOf
 import dev.slne.surf.surfapi.core.api.util.objectSetOf
 import dev.slne.vehicle.fuel.HasFuel
+import dev.slne.vehicle.licenseplate.LicensePlate
 import dev.slne.vehicle.packet.sendArmorStandMetadataPacket
 import dev.slne.vehicle.packet.sendEquipmentPacket
 import dev.slne.vehicle.seat.HasSeats
@@ -16,8 +17,8 @@ import dev.slne.vehicle.seat.SeatList
 import dev.slne.vehicle.seat.despawnAll
 import dev.slne.vehicle.seat.spawnAll
 import dev.slne.vehicle.speedmodifier.VehicleSpeedModifier
-import dev.slne.vehicle.speedmodifier.modifiers.IceSpeedSpeedModifier
-import dev.slne.vehicle.speedmodifier.modifiers.SlimySpeedSpeedModifier
+import dev.slne.vehicle.speedmodifier.modifiers.SlipperySpeedModifier
+import dev.slne.vehicle.speedmodifier.modifiers.StickySpeedModifier
 import dev.slne.vehicle.utils.*
 import io.github.retrooper.packetevents.util.SpigotConversionUtil
 import it.unimi.dsi.fastutil.objects.ObjectList
@@ -30,29 +31,35 @@ import org.bukkit.inventory.meta.LeatherArmorMeta
 import org.bukkit.inventory.meta.SkullMeta
 import org.bukkit.inventory.ItemStack as BukkitItemStack
 
+@DslMarker
+annotation class VehicleDslMarker
+
+class VehicleConfig
+
 abstract class Vehicle(
     val licensePlate: LicensePlate,
     spawnLocation: Location,
     override val seats: SeatList,
 
-    val maxSpeed: Double = 8.0,
-    val accelerationSpeed: Double = 0.1,
-    val breakingSpeed: (Vehicle) -> Double = { _ -> maxSpeed * 0.1 },
-    val maxSpeedBackwards: Double = maxSpeed / 2,
-    val friction: Double = 0.05,
+    open val maxSpeed: Double = 8.0,
+    open val accelerationSpeed: Double = 0.1,
+    open val breakingSpeed: (Vehicle) -> Double = { _ -> maxSpeed * 0.1 },
+    open val maxSpeedBackwards: Double = maxSpeed / 2,
+    open val friction: Double = 0.05,
 
-    val rotationSpeed: Float = 8f,
-    val speedModifiers: ObjectSet<VehicleSpeedModifier> = objectSetOf(
-        IceSpeedSpeedModifier,
-        SlimySpeedSpeedModifier
+    open val rotationSpeed: Float = 8f,
+    open val speedModifiers: ObjectSet<VehicleSpeedModifier> = objectSetOf(
+        SlipperySpeedModifier,
+        StickySpeedModifier
     ),
-    val shouldRotateToPlayer: Boolean = false,
+    open val shouldRotateToPlayer: Boolean = false,
 
     override val usesFuel: Boolean = true,
     override val maxFuel: Double = 100.0,
     override var currentFuel: Double = maxFuel,
     override val fuelUsage: () -> Double = { 0.1 },
 
+    override val usesHealth: Boolean = false,
     override val maxHealth: Double = 100.0,
     override var health: Double = maxHealth,
 ) : HasFuel, HasHealth, HasSeats {
@@ -139,13 +146,17 @@ abstract class Vehicle(
     private fun packetItemStack(itemStack: BukkitItemStack) =
         SpigotConversionUtil.fromBukkitItemStack(itemStack)
 
-    fun spawn() {
+    fun spawn(): Vehicle {
         entityHolder.spawn {
             sendArmorStandMetadataPacket(entityHolder.entityId)
             sendEquipmentPacket(entityHolder.entityId, getEquipment())
         }
         seats.spawnAll()
         licensePlate.spawn()
+
+        VehicleManager.vehicles.add(this)
+
+        return this
     }
 
     fun despawn() {

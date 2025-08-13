@@ -6,7 +6,7 @@ import dev.jorel.commandapi.kotlindsl.commandAPICommand
 import dev.jorel.commandapi.kotlindsl.playerExecutor
 import dev.jorel.commandapi.kotlindsl.subcommand
 import dev.slne.vehicle.packet.VehiclePacketListener
-import dev.slne.vehicle.vehicles.TestVehicle
+import dev.slne.vehicle.vehicles.createTestVehicle
 import org.bukkit.plugin.java.JavaPlugin
 
 val plugin get() = JavaPlugin.getPlugin(SurfVehicle::class.java)
@@ -21,10 +21,7 @@ class SurfVehicle : SuspendingJavaPlugin() {
             subcommand("spawn") {
                 playerExecutor { player, _ ->
                     plugin.launch {
-                        val vehicle = TestVehicle(player.location)
-                        vehicle.spawn()
-
-                        VehicleManager.vehicles.add(vehicle)
+                        createTestVehicle(player.location)
                     }
                 }
             }

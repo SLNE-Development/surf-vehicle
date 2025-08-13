@@ -4,7 +4,7 @@ import dev.slne.surf.surfapi.core.api.util.objectSetOf
 import dev.slne.vehicle.speedmodifier.VehicleSpeedModifier
 import org.bukkit.Material
 
-object IceSpeedSpeedModifier : VehicleSpeedModifier {
+object SlipperySpeedModifier : VehicleSpeedModifier {
 
     override val applicableMaterials = objectSetOf(
         Material.ICE,

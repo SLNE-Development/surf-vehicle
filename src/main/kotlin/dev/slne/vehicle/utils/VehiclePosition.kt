@@ -2,6 +2,7 @@ package dev.slne.vehicle.utils
 
 import com.github.shynixn.mccoroutine.folia.regionDispatcher
 import dev.slne.vehicle.Vehicle
+import dev.slne.vehicle.licenseplate.updateLicensePlatePosition
 import dev.slne.vehicle.packet.sendChangePositionPacket
 import dev.slne.vehicle.plugin
 import dev.slne.vehicle.seat.forEachSeat

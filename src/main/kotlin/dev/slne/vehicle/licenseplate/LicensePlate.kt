@@ -1,4 +1,4 @@
-package dev.slne.vehicle.utils
+package dev.slne.vehicle.licenseplate
 
 import com.github.retrooper.packetevents.protocol.entity.type.EntityTypes
 import com.github.retrooper.packetevents.util.Vector3f
@@ -7,8 +7,11 @@ import dev.slne.vehicle.Vehicle
 import dev.slne.vehicle.packet.sendChangePositionPacket
 import dev.slne.vehicle.packet.sendTextDisplayMetadataPacket
 import dev.slne.vehicle.packet.utils.TextDisplayMetaData
+import dev.slne.vehicle.utils.EntityHolder
 import org.bukkit.Location
 import org.bukkit.util.Vector
+import kotlin.math.cos
+import kotlin.math.sin
 
 data class LicensePlate(
     val spawnLocation: Location,
@@ -29,11 +32,19 @@ data class LicensePlate(
             entityHolder.currentLocation = getLicensePlateLocation(value)
         }
 
-    private fun getLicensePlateLocation(location: Location) =
-        location.clone().add(offset).apply {
+    private fun getLicensePlateLocation(location: Location): Location {
+        val yawRad = Math.toRadians(location.yaw.toDouble())
+        val cos = cos(yawRad)
+        val sin = sin(yawRad)
+
+        val rotatedX = offset.x * cos - offset.z * sin
+        val rotatedZ = offset.x * sin + offset.z * cos
+
+        return location.clone().add(rotatedX, offset.y, rotatedZ).apply {
             yaw = -location.yaw
             pitch = 0f
         }
+    }
 
     private val metadata
         get() = TextDisplayMetaData(

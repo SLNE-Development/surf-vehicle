@@ -8,6 +8,8 @@ import it.unimi.dsi.fastutil.objects.ObjectList
 import org.bukkit.Location
 import org.bukkit.entity.Player
 import org.bukkit.util.Vector
+import kotlin.math.cos
+import kotlin.math.sin
 
 typealias SeatList = ObjectList<Seat>
 
@@ -37,11 +39,19 @@ open class Seat(
             entityHolder.currentLocation = getSeatLocation(value)
         }
 
-    private fun getSeatLocation(location: Location) =
-        location.clone().add(offset).apply {
+    private fun getSeatLocation(location: Location): Location {
+        val yawRad = Math.toRadians(location.yaw.toDouble())
+        val cos = cos(yawRad)
+        val sin = sin(yawRad)
+
+        val rotatedX = offset.x * cos - offset.z * sin
+        val rotatedZ = offset.x * sin + offset.z * cos
+
+        return location.clone().add(rotatedX, offset.y, rotatedZ).apply {
             yaw = location.yaw
             pitch = location.pitch
         }
+    }
 
     fun setOccupant(player: Player?) {
         occupant = player
