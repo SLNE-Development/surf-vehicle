@@ -5,6 +5,7 @@ import com.github.shynixn.mccoroutine.folia.launch
 import com.github.shynixn.mccoroutine.folia.ticks
 import dev.slne.surf.surfapi.core.api.util.logger
 import dev.slne.surf.surfapi.core.api.util.mutableObjectSetOf
+import dev.slne.surf.surfapi.core.api.util.toObjectSet
 import kotlinx.coroutines.*
 import org.bukkit.entity.Player
 
@@ -19,7 +20,7 @@ object VehicleManager : PacketListener {
     fun getVehicleBySeat(entityId: Int) =
         vehicles.firstOrNull { it.seats.any { seat -> seat.entityId == entityId } }
 
-    suspend fun killAll() {
+    fun killAll() {
         vehicles.forEach { it.despawn() }
         vehicles.clear()
     }
@@ -35,7 +36,7 @@ object VehicleManager : PacketListener {
     )
 
     suspend fun tick() {
-        vehicles.forEach { it.tick() }
+        vehicles.toObjectSet().forEach { it.tick() }
     }
 
     fun start() = plugin.launch {
