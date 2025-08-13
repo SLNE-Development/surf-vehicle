@@ -41,7 +41,7 @@ data class LicensePlate(
         val rotatedZ = offset.x * sin + offset.z * cos
 
         return location.clone().add(rotatedX, offset.y, rotatedZ).apply {
-            yaw = -location.yaw
+            yaw = location.yaw + 180f
             pitch = 0f
         }
     }
