@@ -5,6 +5,7 @@ import com.github.retrooper.packetevents.protocol.entity.data.EntityData
 import com.github.retrooper.packetevents.protocol.entity.data.EntityDataTypes
 import com.github.retrooper.packetevents.protocol.entity.type.EntityType
 import com.github.retrooper.packetevents.protocol.entity.type.EntityTypes
+import com.github.retrooper.packetevents.protocol.player.Equipment
 import com.github.retrooper.packetevents.util.Vector3d
 import com.github.retrooper.packetevents.wrapper.play.server.*
 import dev.slne.surf.surfapi.bukkit.api.util.forEachPlayer
@@ -24,6 +25,20 @@ fun mutableEntityDataList() = mutableObjectListOf<EntityData<*>>()
 
 private val api get() = PacketEvents.getAPI()
 private val playerManager get() = api.playerManager
+
+fun sendEquipmentPacket(
+    entityId: Int,
+    equipment: ObjectList<Equipment>
+) {
+    val packet = WrapperPlayServerEntityEquipment(
+        entityId,
+        equipment
+    )
+
+    forEachPlayer { player: Player ->
+        playerManager.sendPacket(player, packet)
+    }
+}
 
 fun sendEntityDespawnPacket(entityId: Int) {
     val packet = WrapperPlayServerDestroyEntities(entityId)

@@ -1,9 +1,16 @@
 package dev.slne.vehicle
 
+import com.github.retrooper.packetevents.protocol.player.Equipment
+import com.github.retrooper.packetevents.protocol.player.EquipmentSlot
 import com.github.retrooper.packetevents.wrapper.play.client.WrapperPlayClientPlayerInput
+import dev.slne.surf.surfapi.bukkit.api.builder.ItemStack
+import dev.slne.surf.surfapi.bukkit.api.builder.meta
+import dev.slne.surf.surfapi.bukkit.api.extensions.server
+import dev.slne.surf.surfapi.core.api.util.mutableObjectListOf
 import dev.slne.surf.surfapi.core.api.util.objectSetOf
 import dev.slne.vehicle.fuel.HasFuel
 import dev.slne.vehicle.packet.sendArmorStandMetadataPacket
+import dev.slne.vehicle.packet.sendEquipmentPacket
 import dev.slne.vehicle.seat.HasSeats
 import dev.slne.vehicle.seat.SeatList
 import dev.slne.vehicle.seat.despawnAll
@@ -12,9 +19,16 @@ import dev.slne.vehicle.speedmodifier.VehicleSpeedModifier
 import dev.slne.vehicle.speedmodifier.modifiers.IceSpeedSpeedModifier
 import dev.slne.vehicle.speedmodifier.modifiers.SlimySpeedSpeedModifier
 import dev.slne.vehicle.utils.*
+import io.github.retrooper.packetevents.util.SpigotConversionUtil
+import it.unimi.dsi.fastutil.objects.ObjectList
 import it.unimi.dsi.fastutil.objects.ObjectSet
+import org.bukkit.Color
 import org.bukkit.Location
+import org.bukkit.Material
 import org.bukkit.entity.Player
+import org.bukkit.inventory.meta.LeatherArmorMeta
+import org.bukkit.inventory.meta.SkullMeta
+import org.bukkit.inventory.ItemStack as BukkitItemStack
 
 abstract class Vehicle(
     val licensePlate: LicensePlate,
@@ -83,9 +97,52 @@ abstract class Vehicle(
         vehiclePosition.updatePosition()
     }
 
+    private fun getEquipment(): ObjectList<Equipment> {
+        val equipment = mutableObjectListOf<Equipment>()
+
+        equipment(EquipmentSlot.HELMET, ItemStack(Material.PLAYER_HEAD) {
+            meta<SkullMeta> {
+                owningPlayer = server.getOfflinePlayer("NotAmmo")
+            }
+        }).also { equipment.add(it) }
+
+        equipment(
+            EquipmentSlot.CHEST_PLATE,
+            coloredLeatherArmor(Material.LEATHER_CHESTPLATE)
+        ).also { equipment.add(it) }
+
+        equipment(
+            EquipmentSlot.LEGGINGS,
+            coloredLeatherArmor(Material.LEATHER_LEGGINGS, Color.BLUE)
+        ).also { equipment.add(it) }
+
+        equipment(
+            EquipmentSlot.BOOTS,
+            coloredLeatherArmor(Material.LEATHER_BOOTS, Color.GREEN)
+        ).also { equipment.add(it) }
+
+        return equipment
+    }
+
+    private fun coloredLeatherArmor(
+        material: Material,
+        color: Color = Color.RED
+    ) = ItemStack(material) {
+        meta<LeatherArmorMeta> {
+            setColor(color)
+        }
+    }
+
+    private fun equipment(slot: EquipmentSlot, itemStack: BukkitItemStack) =
+        Equipment(slot, packetItemStack(itemStack))
+
+    private fun packetItemStack(itemStack: BukkitItemStack) =
+        SpigotConversionUtil.fromBukkitItemStack(itemStack)
+
     fun spawn() {
         entityHolder.spawn {
             sendArmorStandMetadataPacket(entityHolder.entityId)
+            sendEquipmentPacket(entityHolder.entityId, getEquipment())
         }
         seats.spawnAll()
         licensePlate.spawn()
