@@ -14,7 +14,7 @@ class TestVehicle(
     licensePlate = LicensePlate(
         spawnLocation,
         plate = { primary("TEST1234") },
-        offset = Vector(-1.0, -0.25, 0.0)
+        offset = Vector(-0.75, -0.25, 0.0)
     ),
     spawnLocation,
     seats = objectListOf(

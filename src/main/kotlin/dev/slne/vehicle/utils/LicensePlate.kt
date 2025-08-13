@@ -31,7 +31,7 @@ data class LicensePlate(
 
     private fun getLicensePlateLocation(location: Location) =
         location.clone().add(offset).apply {
-            yaw = location.yaw
+            yaw = -location.yaw
             pitch = 0f
         }
 
