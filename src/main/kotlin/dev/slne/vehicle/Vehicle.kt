@@ -34,8 +34,6 @@ import org.bukkit.inventory.ItemStack as BukkitItemStack
 @DslMarker
 annotation class VehicleDslMarker
 
-class VehicleConfig
-
 abstract class Vehicle(
     val licensePlate: LicensePlate,
     spawnLocation: Location,
