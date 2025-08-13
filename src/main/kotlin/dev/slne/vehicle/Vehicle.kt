@@ -97,7 +97,11 @@ abstract class Vehicle(
         lastInput = vehicleInput
     }
 
+    val needsTicking get() = currentSpeed != 0.0
+
     suspend fun tick() {
+        if (!needsTicking) return
+
         vehicleRotation.updateRotation()
         vehiclePosition.updatePosition()
     }
@@ -152,12 +156,14 @@ abstract class Vehicle(
         seats.spawnAll()
         licensePlate.spawn()
 
-        VehicleManager.vehicles.add(this)
+        VehicleManager.register(this)
 
         return this
     }
 
     fun despawn() {
+        VehicleManager.unregister(this)
+        
         licensePlate.despawn()
         seats.despawnAll()
         entityHolder.despawn()
