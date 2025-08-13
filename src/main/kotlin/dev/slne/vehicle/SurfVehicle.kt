@@ -1,7 +1,5 @@
 package dev.slne.vehicle
 
-import com.github.retrooper.packetevents.PacketEvents
-import com.github.retrooper.packetevents.event.PacketListenerPriority
 import com.github.shynixn.mccoroutine.folia.SuspendingJavaPlugin
 import com.github.shynixn.mccoroutine.folia.launch
 import dev.jorel.commandapi.kotlindsl.commandAPICommand
@@ -11,16 +9,12 @@ import dev.slne.vehicle.packet.VehiclePacketListener
 import dev.slne.vehicle.vehicles.TestVehicle
 import org.bukkit.plugin.java.JavaPlugin
 
-val plugin get() = JavaPlugin.getPlugin(VehicleTest::class.java)
+val plugin get() = JavaPlugin.getPlugin(SurfVehicle::class.java)
 
-class VehicleTest : SuspendingJavaPlugin() {
+class SurfVehicle : SuspendingJavaPlugin() {
 
     override suspend fun onEnableAsync() {
-        PacketEvents.getAPI().eventManager.registerListener(
-            VehiclePacketListener,
-            PacketListenerPriority.NORMAL
-        )
-
+        VehiclePacketListener.register()
         VehicleManager.start()
 
         commandAPICommand("vehicle") {

@@ -8,9 +8,10 @@ group = "dev.slne.surf"
 version = findProperty("version") as String
 
 surfPaperPluginApi {
-    mainClass("dev.slne.vehicle.VehicleTest")
+    mainClass("dev.slne.vehicle.SurfVehicle")
     authors.add("Ammo")
     generateLibraryLoader(false)
+    foliaSupported(true)
 
     runServer {
         withSurfApiBukkit()

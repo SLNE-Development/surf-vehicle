@@ -1,29 +1,40 @@
 package dev.slne.vehicle.seat
 
-import dev.slne.vehicle.*
+import dev.slne.vehicle.packet.sendArmorStandMetadataPacket
+import dev.slne.vehicle.packet.sendChangePositionPacket
+import dev.slne.vehicle.packet.sendSetPassengersPacket
+import dev.slne.vehicle.utils.EntityHolder
+import it.unimi.dsi.fastutil.objects.ObjectList
 import org.bukkit.Location
 import org.bukkit.entity.Player
 import org.bukkit.util.Vector
-import java.util.*
-import kotlin.properties.Delegates
+
+typealias SeatList = ObjectList<Seat>
+
+fun SeatList.despawnAll() {
+    forEach { it.despawn() }
+}
+
+fun SeatList.spawnAll() {
+    forEach { it.spawn() }
+}
 
 open class Seat(
+    spawnLocation: Location,
     val seatType: SeatType,
-    vehicleLocation: Location,
     val offset: Vector,
 ) {
+
+    private val entityHolder = EntityHolder(spawnLocation)
+    val entityId get() = entityHolder.entityId
 
     var occupant: Player? = null
         private set
 
-    var entityId by Delegates.notNull<Int>()
-        private set
-
-    private lateinit var uuid: UUID
-
-    var currentLocation: Location = getSeatLocation(vehicleLocation)
+    var currentLocation: Location
+        get() = entityHolder.currentLocation
         set(value) {
-            field = getSeatLocation(value)
+            entityHolder.currentLocation = getSeatLocation(value)
         }
 
     private fun getSeatLocation(location: Location) =
@@ -52,16 +63,13 @@ open class Seat(
     }
 
     fun spawn() {
-        val (entityId, uuid) = sendSpawnArmorStandPacket(currentLocation)
-
-        this.entityId = entityId
-        this.uuid = uuid
-
-        sendArmorStandMetadataPacket(entityId)
+        entityHolder.spawn {
+            sendArmorStandMetadataPacket(entityId)
+        }
     }
 
     fun despawn() {
-        sendEntityDespawnPacket(entityId)
+        entityHolder.despawn()
     }
 
 }
